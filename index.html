@@ -1,10 +1,7 @@
-<body>
-  <div id="calendar"></div>
-
-  <style>
+<style>
   body {
     font-family: 'Inter', 'Helvetica Neue', sans-serif;
-    background: #f9f9fa;
+    background: transparent;
     padding: 2rem;
   }
 
@@ -27,7 +24,7 @@
 
   .event-card {
     display: flex;
-    background: white;
+    background: transparent; /* changed from white */
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 0.75rem;
@@ -36,7 +33,7 @@
   }
 
   .event-card:hover {
-    background: #f0f0ff;
+    background: rgba(240, 240, 255, 0.3);
   }
 
   .event-time {
@@ -77,88 +74,3 @@
     white-space: pre-line;
   }
 </style>
-
-  <!-- Place the script at the end -->
-<script>
-  const API_KEY = 'AIzaSyDyBVxqxfp00E1-ZTXGlYvGFetj6ZiV52g';
-  const CALENDAR_ID = 'dbc93654b68424a84be5d49c6cbeb358e7be384f4e2c1da1aecbb2b77d1bc4f0@group.calendar.google.com';
-  const now = new Date().toISOString();
-
-  fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${now}&singleEvents=true&orderBy=startTime`)
-    .then(response => response.json())
-    .then(data => {
-      const grouped = {};
-
-      data.items.forEach(event => {
-        const start = event.start.dateTime || event.start.date;
-        const dateKey = new Date(start).toDateString();
-        if (!grouped[dateKey]) grouped[dateKey] = [];
-        grouped[dateKey].push(event);
-      });
-
-      const container = document.getElementById('calendar');
-      for (const date in grouped) {
-        const daySection = document.createElement('div');
-        daySection.classList.add('day-group');
-
-        const rawDate = new Date(date);
-        const formattedDate = rawDate.toLocaleDateString('ro-RO', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric'
-        });
-        const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-
-        const dateHeader = document.createElement('h3');
-        dateHeader.classList.add('day-header');
-        dateHeader.textContent = capitalizedDate;
-        daySection.appendChild(dateHeader);
-
-        grouped[date].forEach(event => {
-          const start = new Date(event.start.dateTime || event.start.date);
-          const time = event.start.dateTime
-            ? start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit', hour12: false })
-            : '';
-
-          const div = document.createElement('div');
-          div.className = 'event-card';
-
-          const hasDescription = !!event.description;
-
-          div.innerHTML = `
-            <div class="event-time">${time}</div>
-            <div class="event-details">
-              <div class="event-title">${event.summary || 'Fără titlu'}</div>
-              <div class="event-extra">
-                ${event.location ? `<div class="event-location">Locația: ${event.location}</div>` : ''}
-              </div>
-              ${
-                hasDescription
-                  ? `<div class="event-meta">
-                      <div class="event-description" style="display:none;">${event.description}</div>
-                      <div class="event-toggle-hint" style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">Vezi detalii</div>
-                    </div>`
-                  : ''
-              }
-            </div>
-          `;
-
-          if (hasDescription) {
-            div.style.cursor = 'pointer';
-            div.addEventListener('click', function () {
-              const desc = this.querySelector('.event-description');
-              const hint = this.querySelector('.event-toggle-hint');
-              const isVisible = desc.style.display === 'block';
-              desc.style.display = isVisible ? 'none' : 'block';
-              hint.textContent = isVisible ? 'Vezi detalii' : 'Ascunde detalii';
-            });
-          }
-
-          daySection.appendChild(div);
-        });
-
-        container.appendChild(daySection);
-      }
-    });
-</script>
-</body>

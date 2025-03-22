@@ -147,10 +147,37 @@
         const grouped = {};
 
         data.items.forEach(event => {
-          const start = event.start.dateTime || event.start.date;
-          const dateKey = new Date(start).toDateString();
-          if (!grouped[dateKey]) grouped[dateKey] = [];
-          grouped[dateKey].push(event);
+          const startRaw = event.start.dateTime || event.start.date;
+          const endRaw = event.end.dateTime || event.end.date;
+        
+          const startDate = new Date(startRaw);
+          const endDate = new Date(endRaw);
+        
+          // For all-day events, subtract one day from the end to prevent it from showing on the extra day
+          if (!event.start.dateTime) {
+            endDate.setDate(endDate.getDate() - 1);
+          }
+        
+          const timeKey = event.start.dateTime
+            ? startDate.toLocaleTimeString('ro-RO', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              })
+            : 'Toată ziua';
+        
+          // Iterate through each date the event spans
+          for (
+            let d = new Date(startDate);
+            d <= endDate;
+            d.setDate(d.getDate() + 1)
+          ) {
+            const dateKey = d.toDateString();
+        
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+        
+            grouped[dateKey].push({ ...event, _displayTime: timeKey });
+          }
         });
 
         const container = document.getElementById('calendar');

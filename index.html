@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&display=swap" rel="stylesheet">
   <title>Calendar Evenimente</title>
   <style>
     body {
-      font-family: 'Inter', 'Helvetica Neue', sans-serif;
+      font-family: 'Lora', serif;
       background: #f9f9fa; /* light gray background */
       padding: 2rem;
       margin: 0;
@@ -15,7 +16,7 @@
 
     .header {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       margin-bottom: 3rem;
     }
@@ -24,6 +25,14 @@
       max-width: 220px;
       height: auto;
       display: block;
+    }
+
+    .tagline {
+      margin-top: 0.75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      color: #444;
+      text-align: center;
     }
 
     #calendar {
@@ -89,7 +98,7 @@
 
     .event-location {
       margin-bottom: 0.3rem;
-      font-style: italic;
+      color: #808080;
     }
 
     .event-description {
@@ -97,6 +106,13 @@
       margin-top: 0.5rem;
       word-break: break-word;
       overflow-wrap: anywhere; 
+    }
+
+    .event-toggle-hint {
+      font-size: 0.85rem;
+      color: #7347bf;
+      margin-top: 0.3rem;
+      cursor: pointer;
     }
 
     @media (max-width: 500px) {
@@ -114,6 +130,7 @@
 <body>
   <div class="header">
     <img src="full_logo_short.png" alt="Gastrowe Logo" class="logo" />
+    <div class="tagline">Ghidul tău pentru experiențe gastronomice în Moldova</div>
   </div>
   <div id="calendar"></div>
 

@@ -1,164 +1,186 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar Evenimente</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Helvetica Neue', sans-serif;
+      background: transparent;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    #calendar {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .day-group {
+      margin-bottom: 2rem;
+    }
+
+    .day-header {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #333;
+      padding-bottom: 0.25rem;
+    }
+
+    .event-card {
+      display: flex;
+      background: transparent;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      transition: background 0.3s;
+      flex-wrap: wrap;
+    }
+
+    .event-card:hover {
+      background: rgba(240, 240, 255, 0.3);
+    }
+
+    .event-time {
+      font-weight: 600;
+      width: 70px;
+      color: #555;
+      flex-shrink: 0;
+    }
+
+    .event-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+
+    .event-meta {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .event-extra {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #444;
+    }
+
+    .event-location {
+      margin-bottom: 0.3rem;
+      font-style: italic;
+    }
+
+    .event-description {
+      white-space: pre-line;
+      margin-top: 0.5rem;
+      word-break: break-word;
+      overflow-wrap: anywhere; 
+    }
+
+    @media (max-width: 500px) {
+      .event-card {
+        flex-direction: column;
+      }
+
+      .event-time {
+        width: auto;
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
 <body>
   <div id="calendar"></div>
 
-  <style>
-  body {
-    font-family: 'Inter', 'Helvetica Neue', sans-serif;
-    background: #f9f9fa;
-    padding: 2rem;
-  }
+  <script>
+    const API_KEY = 'AIzaSyDyBVxqxfp00E1-ZTXGlYvGFetj6ZiV52g';
+    const CALENDAR_ID = 'dbc93654b68424a84be5d49c6cbeb358e7be384f4e2c1da1aecbb2b77d1bc4f0@group.calendar.google.com';
+    const now = new Date().toISOString();
 
-  #calendar {
-    max-width: 700px;
-    margin: 0 auto;
-  }
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${now}&singleEvents=true&orderBy=startTime`)
+      .then(response => response.json())
+      .then(data => {
+        const grouped = {};
 
-  .day-group {
-    margin-bottom: 2rem;
-  }
-
-  .day-header {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #333;
-    padding-bottom: 0.25rem;
-  }
-
-  .event-card {
-    display: flex;
-    background: white;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-    transition: background 0.3s;
-  }
-
-  .event-card:hover {
-    background: #f0f0ff;
-  }
-
-  .event-time {
-    font-weight: 600;
-    width: 70px;
-    color: #555;
-  }
-
-  .event-details {
-    flex: 1;
-  }
-
-  .event-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 0.3rem;
-  }
-
-  .event-meta a {
-    font-size: 0.85rem;
-    color: #666;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  .event-extra {
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-    color: #444;
-  }
-
-  .event-location {
-    margin-bottom: 0.3rem;
-    font-style: italic;
-  }
-
-  .event-description {
-    white-space: pre-line;
-  }
-</style>
-
-  <!-- Place the script at the end -->
-<script>
-  const API_KEY = 'AIzaSyDyBVxqxfp00E1-ZTXGlYvGFetj6ZiV52g';
-  const CALENDAR_ID = 'dbc93654b68424a84be5d49c6cbeb358e7be384f4e2c1da1aecbb2b77d1bc4f0@group.calendar.google.com';
-  const now = new Date().toISOString();
-
-  fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${now}&singleEvents=true&orderBy=startTime`)
-    .then(response => response.json())
-    .then(data => {
-      const grouped = {};
-
-      data.items.forEach(event => {
-        const start = event.start.dateTime || event.start.date;
-        const dateKey = new Date(start).toDateString();
-        if (!grouped[dateKey]) grouped[dateKey] = [];
-        grouped[dateKey].push(event);
-      });
-
-      const container = document.getElementById('calendar');
-      for (const date in grouped) {
-        const daySection = document.createElement('div');
-        daySection.classList.add('day-group');
-
-        const rawDate = new Date(date);
-        const formattedDate = rawDate.toLocaleDateString('ro-RO', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric'
+        data.items.forEach(event => {
+          const start = event.start.dateTime || event.start.date;
+          const dateKey = new Date(start).toDateString();
+          if (!grouped[dateKey]) grouped[dateKey] = [];
+          grouped[dateKey].push(event);
         });
-        const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-        const dateHeader = document.createElement('h3');
-        dateHeader.classList.add('day-header');
-        dateHeader.textContent = capitalizedDate;
-        daySection.appendChild(dateHeader);
+        const container = document.getElementById('calendar');
+        for (const date in grouped) {
+          const daySection = document.createElement('div');
+          daySection.classList.add('day-group');
 
-        grouped[date].forEach(event => {
-          const start = new Date(event.start.dateTime || event.start.date);
-          const time = event.start.dateTime
-            ? start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit', hour12: false })
-            : '';
+          const rawDate = new Date(date);
+          const formattedDate = rawDate.toLocaleDateString('ro-RO', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+          });
+          const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-          const div = document.createElement('div');
-          div.className = 'event-card';
+          const dateHeader = document.createElement('h3');
+          dateHeader.classList.add('day-header');
+          dateHeader.textContent = capitalizedDate;
+          daySection.appendChild(dateHeader);
 
-          const hasDescription = !!event.description;
+          grouped[date].forEach(event => {
+            const start = new Date(event.start.dateTime || event.start.date);
+            const time = event.start.dateTime
+              ? start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit', hour12: false })
+              : '';
 
-          div.innerHTML = `
-            <div class="event-time">${time}</div>
-            <div class="event-details">
-              <div class="event-title">${event.summary || 'Fără titlu'}</div>
-              <div class="event-extra">
-                ${event.location ? `<div class="event-location">Locația: ${event.location}</div>` : ''}
+            const div = document.createElement('div');
+            div.className = 'event-card';
+
+            const hasDescription = !!event.description;
+
+            div.innerHTML = `
+              <div class="event-time">${time}</div>
+              <div class="event-details">
+                <div class="event-title">${event.summary || 'Fără titlu'}</div>
+                <div class="event-extra">
+                  ${event.location ? `<div class="event-location">Locația: ${event.location}</div>` : ''}
+                </div>
+                ${
+                  hasDescription
+                    ? `<div class="event-meta">
+                        <div class="event-description" style="display:none;">${event.description}</div>
+                        <div class="event-toggle-hint" style="margin-top: 0.3rem;">Vezi detalii</div>
+                      </div>`
+                    : ''
+                }
               </div>
-              ${
-                hasDescription
-                  ? `<div class="event-meta">
-                      <div class="event-description" style="display:none;">${event.description}</div>
-                      <div class="event-toggle-hint" style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">Vezi detalii</div>
-                    </div>`
-                  : ''
-              }
-            </div>
-          `;
+            `;
 
-          if (hasDescription) {
-            div.style.cursor = 'pointer';
-            div.addEventListener('click', function () {
-              const desc = this.querySelector('.event-description');
-              const hint = this.querySelector('.event-toggle-hint');
-              const isVisible = desc.style.display === 'block';
-              desc.style.display = isVisible ? 'none' : 'block';
-              hint.textContent = isVisible ? 'Vezi detalii' : 'Ascunde detalii';
-            });
-          }
+            if (hasDescription) {
+              div.style.cursor = 'pointer';
+              div.addEventListener('click', function () {
+                const desc = this.querySelector('.event-description');
+                const hint = this.querySelector('.event-toggle-hint');
+                const isVisible = desc.style.display === 'block';
+                desc.style.display = isVisible ? 'none' : 'block';
+                hint.textContent = isVisible ? 'Vezi detalii' : 'Ascunde detalii';
+              });
+            }
 
-          daySection.appendChild(div);
-        });
+            daySection.appendChild(div);
+          });
 
-        container.appendChild(daySection);
-      }
-    });
-</script>
+          container.appendChild(daySection);
+        }
+      });
+  </script>
 </body>
+</html>

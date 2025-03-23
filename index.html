@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: 'Lora', serif;
-      background: #f9f9fa; /* light gray background */
+      background: #f9f9fa;
       padding: 2rem;
       margin: 0;
       min-height: 100vh;
@@ -54,7 +54,7 @@
 
     .event-card {
       display: flex;
-      align-items: flex-start; /* Align items from the top */
+      align-items: flex-start;
       background: white;
       padding: 1rem;
       border-radius: 10px;
@@ -118,14 +118,44 @@
       cursor: pointer;
     }
 
+    .desktop-only {
+      display: inline;
+    }
+
+    .mobile-only {
+      display: none;
+    }
+
+    .event-time-strong {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .separator {
+      margin: 0 0.4rem;
+      color: #aaa;
+    }
+
     @media (max-width: 500px) {
       .event-card {
         flex-direction: column;
       }
 
       .event-time {
-        width: auto;
+        display: none;
+      }
+
+      .desktop-only {
+        display: none;
+      }
+
+      .mobile-only {
+        display: inline;
+      }
+
+      .event-title {
         margin-bottom: 0.5rem;
+        font-size: 1rem;
       }
     }
   </style>
@@ -154,7 +184,6 @@
         const startDate = new Date(startRaw);
         const endDate = new Date(endRaw);
 
-        // For all-day events, subtract one day from the end to avoid including extra day
         if (!event.start.dateTime) {
           endDate.setDate(endDate.getDate() - 1);
         }
@@ -170,7 +199,6 @@
         const totalDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
         const isMultiDay = totalDays > 1;
 
-        // Add event to each day it spans
         for (let d = new Date(startDate), i = 0; d <= endDate; d.setDate(d.getDate() + 1), i++) {
           const dateKey = d.toDateString();
 
@@ -219,7 +247,12 @@
           div.innerHTML = `
             <div class="event-time">${time}</div>
             <div class="event-details">
-              <div class="event-title">${(event.summary || 'Fără titlu') + titleSuffix}</div>
+              <div class="event-title">
+                <span class="desktop-only">${(event.summary || 'Fără titlu') + titleSuffix}</span>
+                <span class="mobile-only">
+                  <strong class="event-time-strong">${time}</strong><span class="separator"> • </span>${(event.summary || 'Fără titlu') + titleSuffix}
+                </span>
+              </div>
               <div class="event-extra">
                 ${event.location ? `<div class="event-location">Locația: ${event.location}</div>` : ''}
               </div>
